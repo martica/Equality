@@ -1,0 +1,23 @@
+<idea-plugin>
+    <id>org.martica.equality</id>
+    <name>Equality</name>
+    <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+
+    <description><![CDATA[
+    Keep your split editor panes on an even footing.
+    ]]></description>
+
+    <depends>com.intellij.modules.lang</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+    </extensions>
+
+    <actions>
+        <action id="org.martica.equality.Equalize"
+                class="org.martica.equality.EqualizeAction"
+                text="Equalize Panes">
+        </action>
+        <!-- Add your actions here -->
+    </actions>
+</idea-plugin>
