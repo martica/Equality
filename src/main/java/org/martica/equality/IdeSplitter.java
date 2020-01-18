@@ -1,9 +1,11 @@
 package org.martica.equality;
 
 import com.google.auto.value.AutoValue;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Splitter;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
 
+import javax.annotation.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Optional;
@@ -12,30 +14,23 @@ import java.util.Optional;
 abstract class IdeSplitter {
     enum SplitterOrientation {
         HORIZONTAL,
-        VERTICAL;
-
-        public SplitterOrientation opposite() {
-            switch (this) {
-                case VERTICAL:
-                    return HORIZONTAL;
-                case HORIZONTAL:
-                    return VERTICAL;
-            }
-            throw new AssertionError("Exhaustive switch.");
-        }
-
-        public static SplitterOrientation fromBool(boolean isHorizontal) {
-            return isHorizontal ? HORIZONTAL : VERTICAL;
-        }
+        VERTICAL
     }
 
-    static IdeSplitter create(Splitter splitter, Optional<IdeSplitter> first,
-                              Optional<IdeSplitter> second) {
+    private static IdeSplitter create(Splitter splitter, Optional<IdeSplitter> first,
+                                      Optional<IdeSplitter> second) {
         return new AutoValue_IdeSplitter(splitter, first, second);
     }
 
-    static Optional<IdeSplitter> buildTree(FileEditorManagerEx fileEditorManagerEx) {
+    private static Optional<IdeSplitter> buildTree(FileEditorManagerEx fileEditorManagerEx) {
         return getSplitters(fileEditorManagerEx);
+    }
+
+    static Optional<IdeSplitter> forProject(@Nullable Project project) {
+        if (project == null) {
+            return Optional.empty();
+        }
+        return buildTree(FileEditorManagerEx.getInstanceEx(project));
     }
 
     abstract Splitter getSplitter();
@@ -44,12 +39,8 @@ abstract class IdeSplitter {
 
     abstract Optional<IdeSplitter> getSecond();
 
-    SplitterOrientation getSplitterOrientation() {
-        return SplitterOrientation.fromBool(getSplitter().getOrientation());
-    }
-
-    void setProportion(float proportion) {
-        getSplitter().setProportion(proportion);
+    private SplitterOrientation getSplitterOrientation() {
+        return getSplitter().getOrientation() ? SplitterOrientation.HORIZONTAL : SplitterOrientation.VERTICAL;
     }
 
     private static Optional<IdeSplitter> getSplitters(FileEditorManagerEx editorManagerEx) {
@@ -72,6 +63,30 @@ abstract class IdeSplitter {
                 getSplitters((JPanel) splitter.getFirstComponent()),
                 getSplitters((JPanel) splitter.getSecondComponent())
         ));
+    }
+
+    static void equalize(IdeSplitter splitter) {
+        int before = countSiblings(splitter.getFirst(), splitter.getSplitterOrientation());
+        int after = countSiblings(splitter.getSecond(), splitter.getSplitterOrientation());
+        int total = before + after;
+
+        splitter.getSplitter().setProportion(1.0f * before / total);
+        splitter.getFirst().ifPresent(IdeSplitter::equalize);
+        splitter.getSecond().ifPresent(IdeSplitter::equalize);
+
+    }
+
+    private static int countSiblings(Optional<IdeSplitter> ideSplitter, SplitterOrientation orientation) {
+        if (!ideSplitter.isPresent()) {
+            return 1;
+        }
+
+        IdeSplitter splitter = ideSplitter.get();
+        if (splitter.getSplitterOrientation() != orientation) {
+            return 1;
+        }
+
+        return countSiblings(splitter.getFirst(), orientation) + countSiblings(splitter.getSecond(), orientation);
     }
 
 }
