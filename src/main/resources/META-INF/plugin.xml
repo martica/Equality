@@ -1,10 +1,12 @@
 <idea-plugin>
     <id>org.martica.equality</id>
     <name>Equality</name>
-    <vendor email="martica@martica.org" url="http://martica.org">Martica.org</vendor>
+    <vendor email="martica@martica.org" url="https://github.com/martica/Equality">Tyler Bindon</vendor>
 
     <description><![CDATA[
     Keep your split editor panes on an even footing.
+
+    <p>Can equalize your splitters automatically, or on demand.
     ]]></description>
 
     <depends>com.intellij.modules.lang</depends>

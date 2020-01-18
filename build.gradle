@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'org.martica'
-version '1.0-SNAPSHOT'
+version '1.0'
 
 sourceCompatibility = 1.8
 
@@ -22,8 +22,7 @@ dependencies {
 intellij {
     version '2018.3.6'
 }
+
 patchPluginXml {
-    changeNotes """
-      Add change notes here.<br>
-      <em>most HTML tags may be used</em>"""
+    changeNotes """First release."""
 }
