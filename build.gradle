@@ -7,6 +7,7 @@ group 'org.martica'
 version '1.0'
 
 sourceCompatibility = 1.8
+targetCompatibility = 1.8
 
 repositories {
     mavenCentral()
@@ -20,9 +21,14 @@ dependencies {
 }
 
 intellij {
-    version '2018.3.6'
+    version '2019.3.1'
 }
 
 patchPluginXml {
-    changeNotes """First release."""
+    changeNotes """
+    First release.
+    <p>Supports manual and automatic splitter equalization.
+    """
+
+    sinceBuild '183'
 }

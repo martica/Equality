@@ -9,6 +9,7 @@
     <p>Can equalize your splitters automatically, or on demand.
     ]]></description>
 
+    <depends>com.intellij.modules.platform</depends>
     <depends>com.intellij.modules.lang</depends>
 
     <extensions defaultExtensionNs="com.intellij">
