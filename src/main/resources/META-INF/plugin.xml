@@ -7,6 +7,7 @@
     Keep your split editor panes on an even footing.
 
     <p>Can equalize your splitters automatically, or on demand.
+    <p>Find our actions in your <b>Tools</b> menu.
     ]]></description>
 
     <depends>com.intellij.modules.platform</depends>

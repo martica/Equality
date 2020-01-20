@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'org.martica'
-version '1.0'
+version '1.1'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -26,8 +26,17 @@ intellij {
 
 patchPluginXml {
     changeNotes """
-    First release.
+    <ul>
+    <li>
+    1.1
+    <p>Improved support for complex nested splitters.
+    </li>
+    <li>
+    1.0
+    <p>First release.
     <p>Supports manual and automatic splitter equalization.
+    </li>
+    </ul>
     """
 
     sinceBuild '183'
