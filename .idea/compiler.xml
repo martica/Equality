@@ -3,13 +3,6 @@
   <component name="CompilerConfiguration">
     <annotationProcessing>
       <profile default="true" name="Default" enabled="true" />
-      <profile name="Gradle Imported" enabled="true">
-        <outputRelativeToContentRoot value="true" />
-        <processorPath useClasspath="false">
-          <entry name="$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.google.auto.value/auto-value/1.6.2/e7eae562942315a983eea3e191b72d755c153620/auto-value-1.6.2.jar" />
-        </processorPath>
-        <module name="equality.main" />
-      </profile>
     </annotationProcessing>
   </component>
 </project>

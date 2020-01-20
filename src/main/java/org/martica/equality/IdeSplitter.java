@@ -1,54 +1,58 @@
 package org.martica.equality;
 
-import com.google.auto.value.AutoValue;
+import com.intellij.openapi.fileEditor.impl.EditorsSplitters;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Splitter;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
+import org.graalvm.compiler.nodes.calc.IntegerDivRemNode;
 
 import javax.annotation.Nullable;
 import javax.swing.*;
 import java.awt.*;
 import java.util.Optional;
 
-@AutoValue
-abstract class IdeSplitter {
+class IdeSplitter {
     enum SplitterOrientation {
         HORIZONTAL,
         VERTICAL
     }
 
-    private static IdeSplitter create(Splitter splitter, Optional<IdeSplitter> first,
-                                      Optional<IdeSplitter> second) {
-        return new AutoValue_IdeSplitter(splitter, first, second);
-    }
+    final Splitter splitter;
+    final Optional<IdeSplitter> first;
+    final Optional<IdeSplitter> second;
 
-    private static Optional<IdeSplitter> buildTree(FileEditorManagerEx fileEditorManagerEx) {
-        return getSplitters(fileEditorManagerEx);
+    IdeSplitter(Splitter splitter) {
+        this.splitter = splitter;
+        this.first = getSplitterForPanel(splitter.getFirstComponent());
+        this.second = getSplitterForPanel(splitter.getSecondComponent());
     }
 
     static Optional<IdeSplitter> forProject(@Nullable Project project) {
         if (project == null) {
             return Optional.empty();
         }
-        return buildTree(FileEditorManagerEx.getInstanceEx(project));
+
+        EditorsSplitters splitters = FileEditorManagerEx.getInstanceEx(project).getSplitters();
+        if (splitters.getComponentCount() == 0) {
+            return Optional.empty();
+        }
+
+        Component component = splitters.getComponent(0);
+        if (!(component instanceof JComponent)) {
+            return Optional.empty();
+        }
+
+        return getSplitterForPanel((JComponent) component);
     }
-
-    abstract Splitter getSplitter();
-
-    abstract Optional<IdeSplitter> getFirst();
-
-    abstract Optional<IdeSplitter> getSecond();
 
     private SplitterOrientation getSplitterOrientation() {
-        return getSplitter().getOrientation() ? SplitterOrientation.HORIZONTAL : SplitterOrientation.VERTICAL;
+        return splitter.getOrientation() ? SplitterOrientation.HORIZONTAL : SplitterOrientation.VERTICAL;
     }
 
-    private static Optional<IdeSplitter> getSplitters(FileEditorManagerEx editorManagerEx) {
-        JPanel rootPanel = (JPanel) editorManagerEx.getSplitters().getComponent(0);
-        return getSplitters(rootPanel);
-    }
-
-    private static Optional<IdeSplitter> getSplitters(JPanel panel) {
+    private static Optional<IdeSplitter> getSplitterForPanel(JComponent panel) {
+        if (!(panel instanceof  JPanel) || panel.getComponentCount() == 0) {
+            return Optional.empty();
+        }
 
         Component component = panel.getComponent(0);
 
@@ -56,30 +60,24 @@ abstract class IdeSplitter {
             return Optional.empty();
         }
 
-        Splitter splitter = (Splitter) component;
-
-        return Optional.of(IdeSplitter.create(
-                splitter,
-                getSplitters((JPanel) splitter.getFirstComponent()),
-                getSplitters((JPanel) splitter.getSecondComponent())
-        ));
+        return Optional.of(new IdeSplitter((Splitter) component));
     }
 
-    static void equalize(IdeSplitter splitter) {
-        SplitterOrientation orientation = splitter.getSplitterOrientation();
-        int before = splitter.getFirst().map(split -> countSiblings(split, orientation)).orElse(1);
-        int total = before + splitter.getSecond().map(split -> countSiblings(split, orientation)).orElse(1);
+    void equalize() {
+        int before = first.map(split -> split.countSiblings(getSplitterOrientation())).orElse(1);
+        int total = before + second.map(split -> split.countSiblings(getSplitterOrientation())).orElse(1);
 
-        splitter.getSplitter().setProportion(1.0f * before / total);
-        splitter.getFirst().ifPresent(IdeSplitter::equalize);
-        splitter.getSecond().ifPresent(IdeSplitter::equalize);
+        splitter.setProportion(1.0f * before / total);
+
+        first.ifPresent(IdeSplitter::equalize);
+        second.ifPresent(IdeSplitter::equalize);
     }
 
-    private static int countSiblings(IdeSplitter ideSplitter, SplitterOrientation orientation) {
-        Integer before = ideSplitter.getFirst().map(split -> countSiblings(split, orientation)).orElse(1);
-        Integer after = ideSplitter.getSecond().map(split -> countSiblings(split, orientation)).orElse(1);
+    private int countSiblings(SplitterOrientation orientation) {
+        Integer before = first.map(split -> split.countSiblings(orientation)).orElse(1);
+        Integer after = second.map(split -> split.countSiblings(orientation)).orElse(1);
 
-        if (ideSplitter.getSplitterOrientation() == orientation) {
+        if (getSplitterOrientation() == orientation) {
             // On-axis splits count the sum of nested splits.
             return before + after;
         } else {
