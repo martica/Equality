@@ -66,27 +66,26 @@ abstract class IdeSplitter {
     }
 
     static void equalize(IdeSplitter splitter) {
-        int before = countSiblings(splitter.getFirst(), splitter.getSplitterOrientation());
-        int after = countSiblings(splitter.getSecond(), splitter.getSplitterOrientation());
-        int total = before + after;
+        SplitterOrientation orientation = splitter.getSplitterOrientation();
+        int before = splitter.getFirst().map(split -> countSiblings(split, orientation)).orElse(1);
+        int total = before + splitter.getSecond().map(split -> countSiblings(split, orientation)).orElse(1);
 
         splitter.getSplitter().setProportion(1.0f * before / total);
         splitter.getFirst().ifPresent(IdeSplitter::equalize);
         splitter.getSecond().ifPresent(IdeSplitter::equalize);
-
     }
 
-    private static int countSiblings(Optional<IdeSplitter> ideSplitter, SplitterOrientation orientation) {
-        if (!ideSplitter.isPresent()) {
-            return 1;
-        }
+    private static int countSiblings(IdeSplitter ideSplitter, SplitterOrientation orientation) {
+        Integer before = ideSplitter.getFirst().map(split -> countSiblings(split, orientation)).orElse(1);
+        Integer after = ideSplitter.getSecond().map(split -> countSiblings(split, orientation)).orElse(1);
 
-        IdeSplitter splitter = ideSplitter.get();
-        if (splitter.getSplitterOrientation() != orientation) {
-            return 1;
+        if (ideSplitter.getSplitterOrientation() == orientation) {
+            // On-axis splits count the sum of nested splits.
+            return before + after;
+        } else {
+            // Off-axis splits count the max of nested splits.
+            return Math.max(before, after);
         }
-
-        return countSiblings(splitter.getFirst(), orientation) + countSiblings(splitter.getSecond(), orientation);
     }
 
 }
