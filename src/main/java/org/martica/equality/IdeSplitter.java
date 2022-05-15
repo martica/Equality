@@ -4,7 +4,6 @@ import com.intellij.openapi.fileEditor.impl.EditorsSplitters;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Splitter;
 import com.intellij.openapi.fileEditor.ex.FileEditorManagerEx;
-import org.graalvm.compiler.nodes.calc.IntegerDivRemNode;
 
 import javax.annotation.Nullable;
 import javax.swing.*;
