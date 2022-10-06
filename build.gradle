@@ -1,13 +1,13 @@
 plugins {
     id 'java'
-    id 'org.jetbrains.intellij' version '1.5.3'
+    id 'org.jetbrains.intellij' version '1.9.0'
 }
 
 group 'org.martica'
-version '1.4'
+version '1.5a'
 
-sourceCompatibility = 1.11
-targetCompatibility = 1.11
+sourceCompatibility = 1.17
+targetCompatibility = 1.17
 
 repositories {
     mavenCentral()
@@ -19,7 +19,7 @@ dependencies {
 }
 
 intellij {
-    version = '2022.1.1'
+    version = '2022.2.3'
 }
 publishPlugin {
     token.set(System.getenv("ORG_GRADLE_PROJECT_intellijPublishToken"))
@@ -27,6 +27,10 @@ publishPlugin {
 patchPluginXml {
     changeNotes = """
     <ul>
+    <li>
+    1.5
+    <p>Update until-build
+    </li>
     <li>
     1.4
     <p>Allow loading in JetBrains Gateway
@@ -51,5 +55,5 @@ patchPluginXml {
     </ul>
     """
 
-    sinceBuild = '203'
+    sinceBuild = '222'
 }
